@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.randu.order.model.Order;
 import com.randu.order.service.OrderService;
+import com.randu.order.vo.ResponseTemplate;
+
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -24,13 +28,19 @@ public class OrderController {
 
     @GetMapping
     public List<Order> getAllOrders(){
-        return orderService.gettAllProducts();
+        return orderService.getAllOrders();
     }
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id){
         Order order = orderService.getOrderById(id);
         return order !=null ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
     }
+    
+    @GetMapping(path = "/produk/{id}")
+    public List<ResponseTemplate> getOrderWithProdukById(@PathVariable Long id) {
+        return orderService.getOrderWithProdukById(id);
+    }
+    
     @PostMapping
     public Order createOrder(@RequestBody Order order){
         return orderService.createOrder(order);
