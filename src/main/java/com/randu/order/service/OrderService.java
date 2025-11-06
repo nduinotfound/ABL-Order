@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+// import com.netflix.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import com.randu.order.model.Order;
 import com.randu.order.vo.Pelanggan;
 import com.randu.order.vo.Produk;
@@ -15,6 +18,9 @@ import com.randu.order.repository.OrderRepository;
 
 @Service
 public class OrderService {
+    @Autowired
+    private DiscoveryClient discoveryClient;
+
     @Autowired
     private OrderRepository orderRepository;
 
@@ -40,9 +46,11 @@ public class OrderService {
     public List<ResponseTemplate> getOrderWithProdukById(Long id){
         List<ResponseTemplate> responseList = new ArrayList<>();
         Order order = getOrderById(id);
-        Produk produk = restTemplate.getForObject("http://localhost:8081/api/produk/"
+        ServiceInstance serviceInstance = discoveryClient.getInstances("PRODUK-SERVICE").get(0);
+        Produk produk = restTemplate.getForObject(serviceInstance.getUri()+ "http://localhost:8081/api/produk/"
                 + order.getProdukId(), Produk.class);
-        Pelanggan pelanggan = restTemplate.getForObject("http://localhost:8082/api/pelanggan/"
+        ServiceInstance serviceInstance1 = discoveryClient.getInstances("PELANGGAN-SERVICE").get(0);
+        Pelanggan pelanggan = restTemplate.getForObject(serviceInstance1.getUri() +"http://localhost:8082/api/pelanggan/"
                 + order.getPelangganId(), Pelanggan.class);
         ResponseTemplate vo = new ResponseTemplate();
         vo.setOrder(order);
